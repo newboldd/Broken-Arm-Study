@@ -4,29 +4,33 @@
 ###############
 
 set subject = BAS001
-set CNDA_project_name = # e.g., NP1083
+set CNDA_project_name = NP1141 # e.g., NP1083
 
 # Output Paths
-set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/
+set basedir = $0/../
 set origdir = $basedir/orig_data/$subject/ # download destination for CNDA files
 set FSdir = $basedir/freesurfer7.2/ # FS outputs
-set procdir = $basedir/proc/
-# basedir:
-# ├── data_orig
-# ├── proc
-# ├── freesurfer7.2
-# ├── results
-# ├── src
-# └── code
+set procdir = $basedir/proc/ # 
 
 set subdir = $procdir/$subject/
 set surfdir = $subdir/Surfaces/ # freesurfer outputs
 set funcdir = $subdir/Functionals/ # output folder for DCM sort, etc.
-# subdir:
-# ├── T1
-# ├── T2
-# ├── Surfaces
-# └── Functionals
+
+# basedir:
+# ├── data_orig
+#    ├──subdir1, 2, 3, ...
+# ├── proc
+#    ├──subdir ...
+#       ├── T1
+#       ├── T2
+#       ├── Surfaces
+#       └── Functionals
+# ├── freesurfer7.2
+#    ├──subdir ...
+# ├── results
+#    ├──subdir ...
+# ├── src
+# └── code
 
 # Param files
 set instruction_file = $basedir/code/instructions.txt # Edit manually
