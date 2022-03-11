@@ -6,89 +6,89 @@
 set subject = BAS001
 set CNDA_project_name = # e.g., NP1083
 
-# Input + Output Paths
+# Output Paths
 set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/
+set origdir = $basedir/orig_data/$subject/ # download destination for CNDA files
+set FSfdir = $basedir/freesurfer7.2/ # FS outputs
+set procdir = $basedir/proc/
 # basedir:
-# ├── proc
 # ├── data_orig
-# ├── ...
+# ├── proc
+# ├── freesurfer7.2
+# ├── results
+# ├── src
 # └── code
 
-set procdir = $basedir/proc/
-# procdir:
-# ├── subject001
-# ├── subject002
-# └── ...
-
-
 set subdir = $procdir/$subject/
+set surfdir = $subdir/Surfaces/ # freesurfer outputs
+set funcdir = $subdir/Functionals/ # output folder for DCM sort, etc.
 # subdir:
 # ├── T1
 # ├── T2
 # ├── Surfaces
 # └── Functionals
 
+# Param files
 set instruction_file = $basedir/code/instructions.txt # Edit manually
 set structparams_file = $subdir/${subject}.structparams # Will be made automatically
 set origlist = $basedir/code/${subject}_sessions_orig.txt # CNDA session names
 set seslist = $basedir/code/${subject}_sessions.txt # new (pretty) session names
-
-set origdir = $basedir/orig_data/ # download destination for CNDA files
-set surfdir = $subdir/Surfaces/ # freesurfer outputs
-set FSfdir = $surfdir/fs7.2/
-set funcdir = $subdir/Functionals/ # output folder for DCM sort, etc.
-set sesnums = `cat $seslist`
 set sesnums_orig = `cat $origlist`
+set sesnums = `cat $seslist`
 
-
-# Dependencies
-set SRCdir = $basedir/src/
-set procSRC = $SRCdir/processing_scripts/
-set REFDIR = `readlink -f ~/refdir`
+# Environment
+set procSRC = $basedir/src/processing_scripts/
 set AVIDIR = `readlink -f ~/avi_release_dir`
 set FSswdir = /usr/local/pkg/freesurfer/bin/
-set FREESURFER_HOME = /usr/local/pkg/freesurfer
 set FSLdir = /usr/local/pkg/fsl6.0.3/bin/
+set path = ($path $procSRC)
+set path = ($path $AVIDIR)
+set path = ($path $FSswdir)
+set path = ($path $FSswdir)
 
-# Dependences for surface processing
-set CaretAtlasFolder = "/data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/templates/standard_mesh_atlases"
+setenv REFDIR = `readlink -f ~/refdir`
+setenv FREESURFER_HOME = /usr/local/pkg/freesurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.csh
+
+# Additional dependencies
+set CaretAtlasFolder = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/templates/standard_mesh_atlases
 set caret_cmd = ${procSRC}/FreeSurfer2CaretConvertAndRegisterNonlinear.sh
 set caret5_cmd = /data/cn/data1/linux/bin/caret_command64
 set caret7_cmd = /data/heisenberg/data1/mario/wb_dir/workbench/bin_rh_linux64/wb_command
 set workbenchdir = /data/heisenberg/data1/mario/wb_dir/workbench/exe_rh_linux64/
 set global_scripts = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/scripts
 
-set path = ($path $procSRC)
-set path = ($path $AVIDIR)
-set path = ($path $FSswdir)
-source $FREESURFER_HOME/SetUpFreeSurfer.csh
 
-
-##################
-# Skip to section
-##################
-# Data download + sorting
-#goto DOWNLOAD
-#goto DCM_SORT
-
-# Structural processing steps
-#goto STRUCT_PARAMS
-#goto STRUCT_DCM
-#goto T1_PROC
-#goto T2_PROC
-#goto ATLAS_LINKS
-#goto CREATE_SURFACES
-#goto SUBCORT_MASK
-
-# Functional processing steps
-#goto FUNC_PARAMS
-#goto GENERIC_PREPROCESS
-#goto RUN_DVAR_4dfp
-#goto FC_PROCESS
-#goto SURF_PROJECTION
+#######################################################
+# CONTENTS
+#######################################################
+# Uncomment a goto statement to skip to that step
 set keep_going = 1
-#####
 
+#########################
+# Data download + sorting
+	#goto DOWNLOAD
+	#goto DCM_SORT
+
+#########################
+# Structural processing
+	#goto STRUCT_PARAMS
+	#goto STRUCT_DCM
+	#goto T1_PROC
+	#goto T2_PROC
+	#goto ATLAS_LINKS
+	#goto CREATE_SURFACES
+	#goto SUBCORT_MASK
+
+#########################
+# Functional processing
+	#goto FUNC_PARAMS
+	#goto GENERIC_PREPROCESS
+	#goto RUN_DVAR_4dfp
+	#goto FC_PROCESS
+	#goto SURF_PROJECTION
+
+#######################################################
 
 DOWNLOAD:
 ####################
