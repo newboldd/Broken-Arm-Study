@@ -56,6 +56,7 @@ set caret_cmd = ${procSRC}/FreeSurfer2CaretConvertAndRegisterNonlinear.sh
 set caret5_cmd = /data/cn/data1/linux/bin/caret_command64
 set caret7_cmd = /data/heisenberg/data1/mario/wb_dir/workbench/bin_rh_linux64/wb_command
 set workbenchdir = /data/heisenberg/data1/mario/wb_dir/workbench/exe_rh_linux64/
+set caretdir = /data/cn/data1/linux/bin/
 set global_scripts = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/scripts
 
 
@@ -77,7 +78,8 @@ set keep_going = 1
 	#goto T1_PROC
 	#goto T2_PROC
 	#goto ATLAS_LINKS
-	#goto CREATE_SURFACES
+	#goto FREESURFER
+	#goto POSTFS
 	#goto SUBCORT_MASK
 
 #########################
@@ -232,7 +234,6 @@ echo bet2 ${subject}_mpr1T_debias ${subject}_mpr1T_debias_bet
 bet2 ${subject}_mpr1T_debias.nii.gz ${subject}_mpr1T_debias_bet
 niftigz_4dfp -4 ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet -N
 
-#HERE1:
 # Register first T1 to atlas
 set modes	= (0 0 0 0 0)
 @ modes[1]	= 1024 + 256 + 3
@@ -267,7 +268,6 @@ T2_PROC:
 ###############
 # Register T2 to T1 and average
 ###############
-
 source $structparams_file
 pushd ${subdir}/T2/
 set T2num = $#T2
@@ -339,17 +339,22 @@ foreach k ($sesnums)
 end
 if (! $keep_going) exit
 
-CREATE_SURFACES:
-#####################
-# Create surfaces
-#####################
-mkdir $surfdir
-pushd $surfdir
+FREESURFER:
+#################
+# Run freesurfer
+#################
 niftigz_4dfp -n $subdir/T1/${subject}_mpr_debias_avgT $subdir/T1/${subject}_mpr_debias_avgT
 mkdir ${FSdir}
 recon-all -all -sd ${FSdir} -s ${subject} -i ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT.nii.gz
 
-# Create 32k surfaces
+POSTFS:
+############################
+# Post-freesurfer processing
+############################
+mkdir $surfdir
+pushd $surfdir
+
+#Create 32k surfaces
 set atlas_name = 'native_fs_LR'
 set T1dir = $subdir/T1/
 set T2dir = $subdir/T2/
@@ -371,7 +376,7 @@ rm -r $atlas_name/$subject
 
 # Resample surfaces to atlas space
 set nativedir = $surfdir/native_fs_LR/
-set resampledir = $surdir/7112b_fs_LR/
+set resampledir = $surfdir/7112b_fs_LR/
 set Nativevol = ${resampledir}/${subject}_mpr_debias_avgT.nii.gz
 set Atlasvol = ${T1dir}/${subject}_mpr_debias_avgT_111_t88.nii.gz
 
@@ -410,24 +415,18 @@ set surfaces = ( midthickness white pial inflated very_inflated )
 #Fsaverage 164k
 foreach surface ( $surfaces )
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.L.${surface}.164k_fs_LR.surf.gii ${resampledir}/${world_file} ${subject}.L.${surface}.164k_fs_LR.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.164k_fs_LR.coord.gii ${subject}.L.164k_fs_LR.topo.gii ${subject}.L.${surface}.164k_fs_LR.coord.gii -matrix $matrix
-
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.164k_fs_LR.coord.gii ${subject}.L.164k_fs_LR.topo.gii ${subject}.L.${surface}.164k_fs_LR.coord.gii -matrix $matrix
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.R.${surface}.164k_fs_LR.surf.gii ${resampledir}/${world_file} ${subject}.R.${surface}.164k_fs_LR.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.164k_fs_LR.coord.gii ${subject}.R.164k_fs_LR.topo.gii ${subject}.R.${surface}.164k_fs_LR.coord.gii -matrix $matrix
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.164k_fs_LR.coord.gii ${subject}.R.164k_fs_LR.topo.gii ${subject}.R.${surface}.164k_fs_LR.coord.gii -matrix $matrix
 end
 
 #Native surface
 pushd Native
 foreach surface ( $surfaces )
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.L.${surface}.native.surf.gii ${resampledir}/${world_file} ${subject}.L.${surface}.native.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.native.coord.gii ${subject}.L.native.topo.gii ${subject}.L.${surface}.native.coord.gii -matrix $matrix
-
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.native.coord.gii ${subject}.L.native.topo.gii ${subject}.L.${surface}.native.coord.gii -matrix $matrix
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.R.${surface}.native.surf.gii ${resampledir}/${world_file} ${subject}.R.${surface}.native.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.native.coord.gii ${subject}.R.native.topo.gii ${subject}.R.${surface}.native.coord.gii -matrix $matrix
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.native.coord.gii ${subject}.R.native.topo.gii ${subject}.R.${surface}.native.coord.gii -matrix $matrix
 end
 popd
 
@@ -435,12 +434,9 @@ popd
 pushd fsaverage_LR32k
 foreach surface ( $surfaces )
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.L.${surface}.32k_fs_LR.surf.gii ${resampledir}/${world_file} ${subject}.L.${surface}.32k_fs_LR.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.32k_fs_LR.coord.gii ${subject}.L.32k_fs_LR.topo.gii ${subject}.L.${surface}.32k_fs_LR.coord.gii -matrix $matrix
-
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.L.${surface}.32k_fs_LR.coord.gii ${subject}.L.32k_fs_LR.topo.gii ${subject}.L.${surface}.32k_fs_LR.coord.gii -matrix $matrix
 	${workbenchdir}/wb_command -surface-apply-affine ${subject}.R.${surface}.32k_fs_LR.surf.gii ${resampledir}/${world_file} ${subject}.R.${surface}.32k_fs_LR.surf.gii
-
-	caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.32k_fs_LR.coord.gii ${subject}.R.32k_fs_LR.topo.gii ${subject}.R.${surface}.32k_fs_LR.coord.gii -matrix $matrix
+	$caretdir/caret_command64 -surface-apply-transformation-matrix ${subject}.R.${surface}.32k_fs_LR.coord.gii ${subject}.R.32k_fs_LR.topo.gii ${subject}.R.${surface}.32k_fs_LR.coord.gii -matrix $matrix
 end
 popd
 
