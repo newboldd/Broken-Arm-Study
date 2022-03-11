@@ -7,6 +7,8 @@ Key scripts:
   - Performs standard MRI preprocessing of T1, T2 and fMRI scans
   - Inputs:
     - DICOMS - in CNDA format
+    - ${subject}_sessions.txt - name of sessions in CNDA download
+    - ${subject}_sessions.txt - name of output sessions
     - instructions.txt - contains sequence parameters and processing flags
   - Outputs:
     - T1 - debiased, averaged across acquisitions, in native + atlas space

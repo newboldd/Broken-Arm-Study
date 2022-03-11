@@ -134,7 +134,7 @@ endif
 
 if (! ${?scrdir}) set scrdir = ""
 @ usescr = `echo $scrdir | awk '{print length ($1)}'`
-if ($usescr) then 
+if ($usescr) then
 	if (! -e $scrdir) mkdir $scrdir
 	if ($status) exit $status
 endif
@@ -284,7 +284,7 @@ if ($status)	exit $status
 ##############################################
 if (! $?BiasField)  @ BiasField = 0;
 if ($BiasField) then
-# create average across all runs	
+# create average across all runs
 	if (-e ${patid}${MBstr}_xr3d.lst) /bin/rm ${patid}${MBstr}_xr3d.lst
 	touch ${patid}${MBstr}_xr3d.lst
 	@ k = 1
@@ -293,7 +293,7 @@ if ($BiasField) then
 		@ k++
 	end
 	conc_4dfp  ${patid}${MBstr}_xr3d -l${patid}${MBstr}_xr3d.lst
-	set  format = `conc2format ${patid}${MBstr}_xr3d.conc $skip`	
+	set  format = `conc2format ${patid}${MBstr}_xr3d.conc $skip`
 	actmapf_4dfp $format ${patid}${MBstr}_xr3d.conc -aavg
 	if ($status) exit $status
 	set base = ${patid}${MBstr}_xr3d_avg
@@ -315,17 +315,17 @@ if ($BiasField) then
 	while ($k <= $runs)
 		pushd bold$irun[$k]
 # bias field correct the whole run
-		imgopr_4dfp -p$patid"_b"$irun[$k]${MBstr}_xr3d_BC $patid"_b"$irun[$k]${MBstr}_xr3d ../${base}_BF 
+		imgopr_4dfp -p$patid"_b"$irun[$k]${MBstr}_xr3d_BC $patid"_b"$irun[$k]${MBstr}_xr3d ../${base}_BF
 		if ($status) exit $status
-		/bin/rm -r   $patid"_b"$irun[$k]${MBstr}_xr3d.4dfp* 
+		/bin/rm -r   $patid"_b"$irun[$k]${MBstr}_xr3d.4dfp*
 		popd
-		@ k++	
+		@ k++
 	end
 	if ($status) exit $status
 	set BC = "_BC"
-else 
+else
 	set BC = ""
-endif  
+endif
 
 date
 #################################
@@ -334,19 +334,19 @@ date
 @ k = 1
 while ($k <= $runs)
 	pushd bold$irun[$k]
-	if ($BiasField) then 
+	if ($BiasField) then
 		set format = `cat $patid"_b"$irun[$k]${MBstr}_xr3d_BC.4dfp.ifh | \
 			gawk 'BEGIN{skip = 1} {if  (/\[4\]/) {f = $NF}} END{printf("%dx%d+",skip,f-skip)}' skip=$skip`
-		actmapf_4dfp $format $patid"_b"$irun[$k]${MBstr}_xr3d_BC -aavg 
-		if ($status) exit $status		
+		actmapf_4dfp $format $patid"_b"$irun[$k]${MBstr}_xr3d_BC -aavg
+		if ($status) exit $status
 		echo 		normalize_4dfp $patid"_b"$irun[$k]${MBstr}_xr3d_BC_avg -h
 		if ($go)	normalize_4dfp $patid"_b"$irun[$k]${MBstr}_xr3d_BC_avg -h
-		if ($status) exit $status	
+		if ($status) exit $status
 		if ($economy > 4 && $epi2atl == 0) /bin/rm $patid"_b"$irun[$k]${MBstr}_xr3d_BC_avg.4dfp."*"
-	else 
-		echo 		normalize_4dfp $patid"_b"$irun[$k]${MBstr}"_r3d_avg" -h	
+	else
+		echo 		normalize_4dfp $patid"_b"$irun[$k]${MBstr}"_r3d_avg" -h
 		if ($go)	normalize_4dfp $patid"_b"$irun[$k]${MBstr}"_r3d_avg" -h
-		if ($status) exit $status	
+		if ($status) exit $status
 		if ($economy > 4 && $epi2atl == 0) /bin/rm $patid"_b"$irun[$k]${MBstr}"_r3d_avg".4dfp."*"
 	endif
 	popd	# out of bold$irun[$k]
@@ -363,7 +363,7 @@ while ($k <= $runs)
 	pushd bold$irun[$k]
 	if ($BiasField) then
 		set file = $patid"_b"$irun[$k]${MBstr}_xr3d_BC_avg_norm.4dfp.img.rec
-	else 
+	else
 		set file = $patid"_b"$irun[$k]${MBstr}_r3d_avg_norm.4dfp.img.rec
 	endif
 	set f = 1.0; if (-e $file) set f = `head $file | awk '/original/{print 1000/$NF}'`
@@ -372,7 +372,7 @@ while ($k <= $runs)
 	echo		/bin/rm $patid"_b"$irun[$k]${MBstr}_xr3d${BC}.4dfp."*"
 	if ($go)	/bin/rm $patid"_b"$irun[$k]${MBstr}_xr3d${BC}.4dfp.*
 	popd	# out of bold$irun[$k]
-	echo bold$irun[$k]/$patid"_b"$irun[$k]${MBstr}_xr3d${BC}_norm >>	$patid"_anat".lst	
+	echo bold$irun[$k]/$patid"_b"$irun[$k]${MBstr}_xr3d${BC}_norm >>	$patid"_anat".lst
 	if ($BiasField) /bin/rm $patid"_b"$irun[$k]${MBstr}_xr3d_BC_avg_norm.4dfp.*
 	@ k++
 end
@@ -432,25 +432,25 @@ while ($k <= $runs)
 	gawk -f $RELEASE/FD.awk $patid"_b"$irun[$k]${MBstr}"_xr3d".ddat >> ${patid}${MBstr}"_xr3d".FD
 	@ k++
 end
-if ($?FDthresh) then 
+if ($?FDthresh) then
 	if (! $?FDtype) set FDtype = 1
 	conc2format ../atlas/${patid}_func_vols.conc $skip | xargs format2lst > $$.format0
 	gawk '{c="+";if ($'$FDtype' > crit)c="x"; printf ("%s\n",c)}' crit=$FDthresh ${patid}${MBstr}"_xr3d".FD > $$.format1
 	paste $$.format0 $$.format1 | awk '{if($1=="x")$2="x";printf("%s",$2)}' > ${patid}${MBstr}"_xr3d".FD.format
 	/bin/rm $$.format0 $$.format1
 	/bin/mv ${patid}${MBstr}"_xr3d".FD.format ../atlas/
-endif 
-popd	
+endif
+popd
 
 pushd atlas		# into atlas
 if (! ${?anat_aveb}) set anat_aveb = 0.
-if (! ${?anat_avet}) then			# set anat_avet excessively high if you wish not to use DVARS as a frame censoring technique 
+if (! ${?anat_avet}) then			# set anat_avet excessively high if you wish not to use DVARS as a frame censoring technique
 	set xstr = ""				# compute threshold using find_dvar_crit.awk
 else
 	set xstr = -x$anat_avet
 endif
-set  format = `conc2format ${patid}_func_vols.conc $skip`	
-echo $format >! ${patid}_func_vols.format	
+set  format = `conc2format ${patid}_func_vols.conc $skip`
+echo $format >! ${patid}_func_vols.format
 echo	actmapf_4dfp ${patid}_func_vols.format ${patid}_func_vols.conc -aave_tmp
 	actmapf_4dfp ${patid}_func_vols.format ${patid}_func_vols.conc -aave_tmp
 if ($status) exit $status
@@ -460,9 +460,9 @@ if ($status) exit $status
 niftigz_4dfp -4  ${patid}_func_vols_ave_tmp_msk.nii.gz  ${patid}_func_vols_ave_tmp_msk
 echo	run_dvar_4dfp ${patid}_func_vols.conc -m${patid}_func_vols_ave_tmp_msk -n$skip $xstr -b$anat_aveb
 	run_dvar_4dfp ${patid}_func_vols.conc -m${patid}_func_vols_ave_tmp_msk -n$skip $xstr -b$anat_aveb
-if ($status) exit $status	
+if ($status) exit $status
 rm  ${patid}_func_vols_ave_tmp*
-if ($?FDthresh) then 
+if ($?FDthresh) then
 	format2lst ${patid}_func_vols.format > $$.format1
 	format2lst ${patid}${MBstr}"_xr3d".FD.format > $$.format2
 	paste $$.format1 $$.format2 | gawk '{if($1=="x")$2="x";printf("%s",$2);}' | xargs condense  > ${patid}_func_vols.format
@@ -492,7 +492,7 @@ if ($day1_patid != "") then
 	if ($go)	cross_day_imgreg_4dfp $patid $day1_path $day1_patid $tarstr $stretch_flag -a$trailer
 	if ($status) exit $status
 	if ($trailer != anat_ave) then
-		/bin/rm -f						${patid}_anat_ave_to_${target:t}_t4 
+		/bin/rm -f						${patid}_anat_ave_to_${target:t}_t4
 		ln -s $cwd/${patid}_func_vols_ave_to_${target:t}_t4	${patid}_anat_ave_to_${target:t}_t4
 	endif
 	@ Et2w = 0
@@ -502,12 +502,12 @@ if ($day1_patid != "") then
 	else if (-e $day1_path/$patid1"_t2w".4dfp.img) then
 		set t2w = $patid1"_t2w"
 		@ Et2w = 1
-	endif 
-	if (-e $day1_path/$patid1"_mpr1T".4dfp.img) then 
+	endif
+	if (-e $day1_path/$patid1"_mpr1T".4dfp.img) then
 		set mpr = $patid1"_mpr1T"
 	else if ( -e $day1_path/$patid1"_mpr1".4dfp.img) then
 		set mpr = $patid1"_mpr1"
-	else 
+	else
 		echo "no structual image in day1_path"
 		exit 1
 	endif
@@ -515,7 +515,7 @@ if ($day1_patid != "") then
 		/bin/cp -t . \
 			$day1_path/${day1_patid}_${trailer}_to_*_t4 \
 			$day1_path/${mpr}.4dfp.* \
-			$day1_path/${mpr}_to_${target:t}_t4 
+			$day1_path/${mpr}_to_${target:t}_t4
 		if ($status) exit $status
 	endif
 	if ($Et2w) then
@@ -531,7 +531,7 @@ if ($day1_patid != "") then
 	else
 		t4_mul ${epi_anat}_to_${day1_patid}_${trailer}_t4 ${day1_patid}_${trailer}_to_${mpr}_t4 ${epi_anat}_to_${mpr}_t4
 		if ($status) exit $status
-		if ( $day1_path != $cwd  && (! ${?gre} && ! ${?FMmag}) && $?FMmean && $?FMbases ) then 
+		if ( $day1_path != $cwd  && (! ${?gre} && ! ${?FMmag}) && $?FMmean && $?FMbases ) then
 			/bin/cp -t . \
 				$day1_path/${patid1}_aparc+aseg_on_${target:t}_333.4dfp.* \
 				$day1_path/${patid1}_FSWB_on_${target:t}_333.4dfp.* \
@@ -541,7 +541,7 @@ if ($day1_patid != "") then
 				$day1_path/${patid1}_orig_to_${mpr}_t4
 			if ($status) exit $status
 		endif
-	endif 
+	endif
 	goto EPI_to_ATL
 endif
 
@@ -580,7 +580,7 @@ if (${?mprs}) then
 
 	if ($#tse == 0 && ! ${?FMmag} && ! ${?gre}) then
 		set mprlstT = ()
-			foreach mpr ($mprlst)  
+			foreach mpr ($mprlst)
 			@ ori = `awk '/orientation/{print $NF}' ${mpr}.4dfp.ifh`
 			switch ($ori)
 			case 2:
@@ -594,7 +594,7 @@ if (${?mprs}) then
 			endsw
 		end
 		set mprlst = ($mprlstT)
-	endif 
+	endif
 
 	set mpr = $mprlst[1]
 	if ($Gad) then
@@ -780,20 +780,20 @@ else if ($?FMmean && $?FMbases) then
 	if ($Et2w) then
 		set uwrp_args   = (-basis atlas/${epi_anat} atlas/${t2w} $FMmean $FMbases atlas/${epi_anat}_to_${t2w}_t4 atlas/${epi_anat}_to_${target:t}_t4 $dwell $ped $nbasis)
 	else
-		if ($day1_patid == "") then 
-			if ($go) Generate_FS_Masks_AZS.csh $prmfile $instructions		
+		if ($day1_patid == "") then
+			if ($go) Generate_FS_Masks_AZS.csh $prmfile $instructions
 			if ($status) exit $status
 		endif
 
-		pushd atlas			
+		pushd atlas
 			t4img_4dfp ${patid1}_orig_to_${mpr}_t4 ${patid1}_aparc+aseg ${patid1}_aparc+aseg_on_$mpr -O$mpr -n
 			if ($status) exit $status
 			niftigz_4dfp -n ${patid1}_aparc+aseg_on_$mpr ${patid1}_aparc+aseg_on_$mpr
-			if ($status) exit $status			
+			if ($status) exit $status
 			$FSLDIR/bin/fslmaths ${patid1}_aparc+aseg_on_$mpr.nii.gz -bin -dilF -dilF -fillh -ero ${patid1}_brain_mask.nii.gz
-			if ($status) exit $status			
+			if ($status) exit $status
 			niftigz_4dfp -4 ${patid1}_brain_mask ${patid1}_brain_mask
-			if ($status) exit $status			
+			if ($status) exit $status
 		popd
 		set uwrp_args = (-basis atlas/${epi_anat} atlas/$mpr $FMmean $FMbases atlas/${epi_anat}_to_${mpr}_t4 atlas/${epi_anat}_to_${target:t}_t4 $dwell $ped $nbasis atlas/${patid1}_brain_mask)
 	endif
@@ -801,7 +801,7 @@ else if ($?FMmean && $?FMbases) then
 else if ($?FMmean) then
 	set uwrp_args = (-mean atlas/${epi_anat} $FMmean atlas/${epi_anat}_to_${target:t}_t4 $dwell $ped)
 	set log	= ${patid}_fmri_unwarp_170616_mean.log
-else 
+else
 	echo "destortion correction can not be done"
 	exit -1
 endif
@@ -843,12 +843,12 @@ if (${#sefm} || ${#gre} || ! $?FMbases) then
 		t4_mul unwarp/${epi_anat}_uwrp_to_${mpr}_t4 atlas/${mpr}_to_${target:t}_t4 unwarp/${epi_anat}_uwrp_to_${target:t}_t4
 		if ($status) exit $status
 	endif
-else 
-	if ($Et2w) then 
+else
+	if ($Et2w) then
 		set struct = $t2w
 	else
 		set struct = $mpr
-	endif 
+	endif
 	echo	t4_mul	unwarp/${epi_anat}_uwrp_to_${struct}_t4 atlas/${struct}_to_${target:t}_t4 unwarp/${epi_anat}_uwrp_to_${target:t}_t4
 		t4_mul	unwarp/${epi_anat}_uwrp_to_${struct}_t4 atlas/${struct}_to_${target:t}_t4 unwarp/${epi_anat}_uwrp_to_${target:t}_t4
 	set t4file = unwarp/${epi_anat}_uwrp_to_${target:t}_t4

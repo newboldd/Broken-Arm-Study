@@ -1,4 +1,4 @@
 # Ignore data
-data/
+orig_data/
 proc/
 results/

@@ -65,4 +65,3 @@ set workdir     = $cwd		# path containing FCmaps
 set ROIdir	= $REFDIR/CanonicalROIsNP705
 set ROIimg	= CanonicalROIsNP705
 set ROIimg	= Zhang10_NP705
-
