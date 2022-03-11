@@ -1,0 +1,4 @@
+# Ignore data
+data/
+proc/
+results/
