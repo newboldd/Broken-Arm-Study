@@ -3,8 +3,7 @@
 # DJN, 07/2018
 ###############
 
-# Output paths
-
+# Input + Output Paths
 set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/
 # basedir:
 # ├── proc
@@ -18,40 +17,48 @@ set procdir = $basedir/proc/
 # ├── subject002
 # └── ...
 
-set subject = BAS001 # subject of interest
+set subject = BAS001
 set subdir = $procdir/$subject/
-# ├── Structural
-# ├── Functional
-# └── Surfaces
+# subdir:
+# ├── T1
+# ├── T2
+# ├── Surfaces
+# └── Functionals
+
+set instruction_file = $basedir/code/instructions.txt # Edit manually
+set structparams_file = $subdir/${subject}.structparams # Will be made automatically
+set origlist = $basedir/code/${subject}_sessions_orig.txt # CNDA session names
+set seslist = $basedir/code/${subject}_sessions.txt # new (pretty) session names
+
+set origdir = $basedir/orig_data/ # download destination for CNDA files
+set surfdir = $subdir/Surfaces/ # freesurfer outputs
+set FSfdir = $surfdir/fs7.2/
+set funcdir = $subdir/Functionals/ # output folder for DCM sort, etc.
+set sesnums = `cat $seslist`
+set sesnums_orig = `cat $origlist`
 
 
 # Dependencies
 set SRCdir = $basedir/src/
 set procSRC = $SRCdir/processing_scripts/
-# set laudir = /data/nil-bluearc/GMT/Laumann/MSC/
 set REFDIR = `readlink -f ~/refdir`
 set AVIDIR = `readlink -f ~/avi_release_dir`
-# set FSdir = ${subdir}/Surfaces/fs7.2/
 set FSswdir = /usr/local/pkg/freesurfer/bin/
 set FREESURFER_HOME = /usr/local/pkg/freesurfer
 set FSLdir = /usr/local/pkg/fsl6.0.3/bin/
 
-set path = ($path $REFDIR)
+# Dependences for surface processing
+set CaretAtlasFolder = "/data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/templates/standard_mesh_atlases"
+set caret_cmd = ${procSRC}/FreeSurfer2CaretConvertAndRegisterNonlinear.sh
+set caret5_cmd = /data/cn/data1/linux/bin/caret_command64
+set caret7_cmd = /data/heisenberg/data1/mario/wb_dir/workbench/bin_rh_linux64/wb_command
+set workbenchdir = /data/heisenberg/data1/mario/wb_dir/workbench/exe_rh_linux64/
+set global_scripts = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/scripts
+
+set path = ($path $procSRC)
 set path = ($path $AVIDIR)
 set path = ($path $FSswdir)
 source $FREESURFER_HOME/SetUpFreeSurfer.csh
-
-# set scriptdir = /data/nil-bluearc/GMT/Dillan/scripts/
-
-set instruction_file = ${basedir}/code/instructions.txt
-set funcdir = $subdir/Functionals/ # output folder for DCM sort, etc.
-set origdir = $basedir/orig_data/ # contains unzipped CNDA sessions
-set seslist = $basedir/code/${subject}_sessions.txt # name of new (pretty) session names
-set sesnums = `cat $seslist`
-set origlist = $basedir/code/${subject}_sessions_orig.txt # name of OG (CNDA) session names
-set sesnums_orig = `cat $origlist`
-set FSdir = ${subdir}/Surfaces/
-#set struct_proc_script = ${basedir}/code/preproc/Structural_pp_220302.csh
 
 
 ##################
@@ -159,20 +166,18 @@ foreach k ( $sesnums )
 	popd
 end
 
-if ( ! -e ${subdir}/Structurals ) mkdir ${subdir}/Structurals
-
 # static struct params
-echo "set patid = $subject" > $subdir/Structurals/${subject}.structparams
-echo "set structid = ${subject}_struct" >> $subdir/Structurals/${subject}.structparams
-echo "set studydir = ${basedir}" >> $subdir/Structurals/${subject}.structparams
-echo "set FSdir = ${FSdir}" >> $subdir/Structurals/${subject}.structparams
-echo "set PostFSdir = ${FSdir}/FREESURFER_fs_LR" >> $subdir/Structurals/${subject}.structparams
+echo "set patid = $subject" > $structparams_file
+echo "set structid = ${subject}_struct" >> $structparams_file
+echo "set studydir = ${basedir}" >> $structparams_file
+echo "set FSdir = ${FSdir}" >> $structparams_file
+echo "set PostFSdir = ${FSdir}/FREESURFER_fs_LR" >> $structparams_file
 
 # dynamic struct params
-echo "set mprdirs    = ( ${T1_label} )" >> $subdir/Structurals/${subject}.structparams
-echo "set t2wdirs    = ( ${T2_label} )" >> $subdir/Structurals/${subject}.structparams
+echo "set mprdirs    = ( ${T1_label} )" >> $structparams_file
+echo "set t2wdirs    = ( ${T2_label} )" >> $structparams_file
 
-cat $subdir/Structurals/${subject}.structparams
+cat $structparams_file
 
 if (! $keep_going) exit
 
@@ -183,7 +188,7 @@ STRUCT_DCM:
 set structtype = ( T1 T2 )
 
 pushd ${subdir}
-source ${subdir}/Structurals/${subject}.structparams
+source $structparams_file
 foreach struct ( $structtype )
 	mkdir $struct
 end
@@ -213,9 +218,8 @@ T1_PROC:
 # Register T1 to atlas, debias, and average
 ###############
 
-set structdir = ${subdir}/T1
-source ${subdir}/Structurals/${subject}.structparams
-pushd ${structdir}
+source $structparams_file
+pushd ${subdir}/T1/
 set T1num = $#T1
 
 # Transform from Sagittal to Transverse
@@ -229,8 +233,8 @@ end
 # Debias and convert back to 4dfp
 set k = 1
 while ( $k <= $T1num )
-	echo ${scriptdir}/apply_debias.csh ${subject}_mpr${k}T
-	${scriptdir}/apply_debias.csh ${subject}_mpr${k}T
+	echo apply_debias.csh ${subject}_mpr${k}T
+	apply_debias.csh ${subject}_mpr${k}T
 	niftigz_4dfp -4 ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias -N
 	@ k++
 end
@@ -276,9 +280,8 @@ T2_PROC:
 # Register T2 to T1 and average
 ###############
 
-set structdir = ${basedir}/${subject}/T2
-source ${subdir}/Structurals/${subject}.structparams
-pushd ${structdir}
+source $structparams_file
+pushd ${subdir}/T2/
 set T2num = $#T2
 
 ln -s ../T1/${subject}_mpr1T_debias_to_TRIO_Y_NDC_t4 .
@@ -296,8 +299,8 @@ end
 # Debias and convert back to 4dfp
 set k = 1
 while ( $k <= $T2num )
-	echo ${scriptdir}/apply_debias.csh ${subject}_t2w${k}T
-	${scriptdir}/apply_debias.csh ${subject}_t2w${k}T
+	echo apply_debias.csh ${subject}_t2w${k}T
+	apply_debias.csh ${subject}_t2w${k}T
 	niftigz_4dfp -4 ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias -N
 	@ k++
 end
@@ -354,12 +357,11 @@ CREATE_SURFACES:
 #####################
 # Create surfaces
 #####################
-set freesurfbin = /data/heisenberg/data1/freesurfer5.3/bin/
-set freesurfdir = $subdir/fs5.3_native_default/
-
-niftigz_4dfp -n ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT
-mkdir ${freesurfdir}
-${freesurfbin}/recon-all -all -sd ${freesurfdir} -s ${subject} -i ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT.nii.gz
+mkdir $surfdir
+pushd $surfdir
+niftigz_4dfp -n $subdir/T1/${subject}_mpr_debias_avgT $subdir/T1/${subject}_mpr_debias_avgT
+mkdir ${FSdir}
+recon-all -all -sd ${FSdir} -s ${subject} -i ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT.nii.gz
 
 # Create 32k surfaces
 set atlas_name = 'native_fs_LR'
@@ -367,14 +369,8 @@ set T1dir = $subdir/T1/
 set T2dir = $subdir/T2/
 set T1name = ${subject}_mpr_debias_avgT_111_t88
 
-set caret_cmd = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/PostFreeSurfer/scripts/FreeSurfer2CaretConvertAndRegisterNonlinear.sh
-set CaretAtlasFolder = "/data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/templates/standard_mesh_atlases"
-set caret5_cmd = /data/cn/data1/linux/bin/caret_command64
-set caret7_cmd = /data/heisenberg/data1/mario/wb_dir/workbench/bin_rh_linux64/wb_command
-set global_scripts = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/scripts
-
 if (! -e $atlas_name) mkdir $atlas_name
-cp -R $freesurfdir/$subject $atlas_name
+cp -R $FSdir/$subject $atlas_name
 cp $T1dir/$T1name.4dfp* $atlas_name
 chmod 644 $atlas_name/$T1name*
 niftigz_4dfp -n $atlas_name/$T1name $atlas_name/$T1name
@@ -383,17 +379,13 @@ fslmaths $atlas_name/$T1name.nii.gz -sub $atlas_name/$T1name.nii.gz $atlas_name/
 fslmerge -t $atlas_name/zero_.nii.gz $atlas_name/zero.nii.gz $atlas_name/zero.nii.gz $atlas_name/zero.nii.gz
 mv -f $atlas_name/zero_.nii.gz $atlas_name/zero.nii.gz
 
-$caret_cmd $basedir $subject $subdir/$atlas_name $subdir/$atlas_name Native $freesurfdir/$subject/ $T1name $subdir/$atlas_name/$T1name.nii.gz $T1name $T1name $CaretAtlasFolder 32000 32 $caret5_cmd $caret7_cmd $subdir/$atlas_name/zero $subdir/$atlas_name/zero $T1name $T1name brainmask_fs $caret_cmd:h $global_scripts
+$caret_cmd $basedir $subject $subdir/$atlas_name $subdir/$atlas_name Native $FSdir/$subject/ $T1name $subdir/$atlas_name/$T1name.nii.gz $T1name $T1name $CaretAtlasFolder 32000 32 $caret5_cmd $caret7_cmd $subdir/$atlas_name/zero $subdir/$atlas_name/zero $T1name $T1name brainmask_fs $caret_cmd:h $global_scripts
 
 rm -r $atlas_name/$subject
 
 # Resample surfaces to atlas space
-set nativedir = $basedir/$subject/native_fs_LR/
-set resampledir = $basedir/$subject/7112b_fs_LR/
-set workbenchdir = /data/heisenberg/data1/mario/wb_dir/workbench/exe_rh_linux64/
-
-#set T1dir = ${basedir}/${subject}/T1
-set T1dir = $basedir/${subject}/T1
+set nativedir = $surfdir/native_fs_LR/
+set resampledir = $surdir/7112b_fs_LR/
 set Nativevol = ${resampledir}/${subject}_mpr_debias_avgT.nii.gz
 set Atlasvol = ${T1dir}/${subject}_mpr_debias_avgT_111_t88.nii.gz
 
@@ -403,7 +395,7 @@ pushd ${nativedir}
 cp -r * ${resampledir}
 rm ${Nativevol}
 popd
-pushd T1
+pushd $T1dir
 niftigz_4dfp -n $Atlasvol:r:r $Atlasvol:r:r
 cp ${Atlasvol} $resampledir
 popd
@@ -414,7 +406,7 @@ set t4file = ${subject}_mpr1T_debias_to_TRIO_Y_NDC_t4
 set source_vol_4dfp = ${T1dir}/${subject}_mpr1T_debias.4dfp.ifh
 set target_vol_4dfp = /data/petsun43/data1/atlas/TRIO_Y_NDC.4dfp.ifh
 set source_vol_nii = ${T1dir}/${subject}_mpr1T_debias.nii
-pushd T1
+pushd $T1dir
 nifti_4dfp -n $source_vol_nii:r $source_vol_nii:r
 popd
 set target_vol_nii = /data/petsun43/data1/atlas/TRIO_Y_NDC_111.nii
@@ -466,7 +458,7 @@ foreach surface ( $surfaces )
 end
 popd
 
-#Remove unchanges coord files
+#Remove unchanged coord files
 pushd fsaverage
 rm *coord*
 popd
@@ -477,12 +469,12 @@ SUBCORT_MASK:
 ##################################
 # CREATE SUBCORTICAL MASK & RIBBON
 ##################################
-#$scriptdir/surface_projection/create_subcortical_mask.csh $subject
+# May need to change script here to accomodate moving surface atlas directories into surfdir
 set maskdir = $subdir/subcortical_mask
 set t4file = $subdir/T1/${subject}_mpr1T_to_TRIO_Y_NDC_t4
-$scriptdir/surface_projection/create_subcortical_mask_SIC.csh $subject $subdir/fs5.3_native_default/ $t4file $maskdir
+create_subcortical_mask_SIC.csh $subject $subdir/fs5.3_native_default/ $t4file $maskdir
+create_ribbon.csh $subject
 
-$scriptdir/surface_projection/create_ribbon.csh $subject
 if (! $keep_going) exit
 
 
@@ -541,7 +533,7 @@ foreach k ($sesnums)
 	# Sequence string for slice-time correction
 	set boldnum = $fstd_dcms[1]
 	set F = `ls study$boldnum/*dcm | head -1`
-	set seqstr = `strings $F | gawk -f $scriptdir/preproc/parse_strings.awk | gawk '{print NR, $1}' | sort -n -k 2,2 | gawk '{printf("%d,", $1);}'`
+	set seqstr = `strings $F | gawk -f parse_strings.awk | gawk '{print NR, $1}' | sort -n -k 2,2 | gawk '{printf("%d,", $1);}'`
 	echo "set seqstr	= " $seqstr >> $k.params
 
 	# FC params
@@ -558,7 +550,7 @@ GENERIC_PREPROCESS:
 ###############################################
 foreach k ( $sesnums )
 	pushd $funcdir/$k
-	$procSRC/cross_bold_dn_180706.csh ${k}.params $instruction_file
+	cross_bold_dn_180706.csh ${k}.params $instruction_file
 	popd
 end
 
@@ -594,8 +586,8 @@ FCPROCESS:
 ####################
 foreach patid ($sesnums)
 	pushd $patid
-	echo $scriptdir/preproc/fcMRI_preproc_180730.csh $patid.params $instruction_file
-	$scriptdir/preproc/fcMRI_preproc_180730.csh $patid.params $instruction_file
+	echo fcMRI_preproc_180730.csh $patid.params $instruction_file
+	fcMRI_preproc_180730.csh $patid.params $instruction_file
 	if ($status) exit $status
 	popd
 end
@@ -606,13 +598,14 @@ SURF_PROJECTION:
 ###########################################
 # combined good_voxels + surface projection
 ###########################################
+# May need to change script here to accomodate moving surface atlas directories into surfdir
 foreach patid ($sesnums)
 	pushd $patid
 	source ${patid}.params
 
 	# good voxels
 	echo $patid > temp_patid.txt
-	$scriptdir/surface_projection/create_goodvoxels_mask_mod.csh ${subject} `pwd`/temp_patid.txt $subdir/7112b_fs_LR/Ribbon $subdir
+	create_goodvoxels_mask_mod.csh ${subject} `pwd`/temp_patid.txt $subdir/7112b_fs_LR/Ribbon $subdir
 	rm temp_patid.txt
 
 	# tasks
@@ -620,14 +613,14 @@ foreach patid ($sesnums)
 	while ($k <= $#irun)
 		set run = $irun[$k]
 		pushd bold$run
-		$scriptdir/surface_projection/create_cifti_goodvoxels_SIC.csh $subject $patid ${patid}_b${run}_faln_dbnd_xr3d_uwrp_atl
+		create_cifti_goodvoxels_SIC.csh $subject $patid ${patid}_b${run}_faln_dbnd_xr3d_uwrp_atl
 		popd
 		@ k++
 	end
 
 	#rest
 	pushd bold1
-	$scriptdir/surface_projection/create_cifti_goodvoxels_SIC.csh $subject $patid ${patid}_b1_faln_dbnd_xr3d_uwrp_atl_bpss_resid
+	surface_projection/create_cifti_goodvoxels_SIC.csh $subject $patid ${patid}_b1_faln_dbnd_xr3d_uwrp_atl_bpss_resid
 	popd
 	popd
 end
