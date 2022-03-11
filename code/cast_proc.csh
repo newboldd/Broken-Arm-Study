@@ -3,6 +3,9 @@
 # DJN, 07/2018
 ###############
 
+set subject = BAS001
+set CNDA_project_name = # e.g., NP1083
+
 # Input + Output Paths
 set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/
 # basedir:
@@ -17,7 +20,7 @@ set procdir = $basedir/proc/
 # ├── subject002
 # └── ...
 
-set subject = BAS001
+
 set subdir = $procdir/$subject/
 # subdir:
 # ├── T1
@@ -91,21 +94,27 @@ DOWNLOAD:
 ####################
 # Get data from CNDA
 ####################
-set cnda_username = newboldd
-set cnda_password =
-set project = NP1083
+#Get CNDA username and password
+echo -n "Enter CNDA username: "
+set cnda_username = $<
+
+stty -echo
+echo -n "Enter password: "
+set cnda_password = $<
+stty echo
+echo
 
 if (! -e $origdir) mkdir $origdir
 pushd $origdir
 
 set k = 1
 while ( $k <= $#sesnums_orig)
-	curl -k -u ${cnda_username}:${cnda_password} "https://cnda.wustl.edu/REST/projects/$project/experiments/${sesnums_orig[$k]}/DIR/SCANS?format=zip&recursive=true" > temp.zip
+	curl -k -u ${cnda_username}:${cnda_password} "https://cnda.wustl.edu/REST/projects/$CNDA_project_name/experiments/${sesnums_orig[$k]}/DIR/SCANS?format=zip&recursive=true" > temp.zip
 	unzip temp.zip
 	/bin/rm temp.zip
 	@ k++
 end
-popd #out of origdir
+popd
 if (! $keep_going) exit
 
 DCM_SORT:
@@ -126,9 +135,7 @@ while ( $k <= $#sesnums)
 	popd
 	@ k++
 end
-
 if (! $keep_going) exit
-
 
 STRUCT_PARAMS:
 ################
@@ -178,7 +185,6 @@ echo "set mprdirs    = ( ${T1_label} )" >> $structparams_file
 echo "set t2wdirs    = ( ${T2_label} )" >> $structparams_file
 
 cat $structparams_file
-
 if (! $keep_going) exit
 
 STRUCT_DCM:
@@ -210,14 +216,12 @@ while ( $k <= $#T2 )
 end
 popd
 popd
-
 if (! $keep_going) exit
 
 T1_PROC:
 ###############
 # Register T1 to atlas, debias, and average
 ###############
-
 source $structparams_file
 pushd ${subdir}/T1/
 set T1num = $#T1
@@ -323,9 +327,7 @@ t4img_4dfp ${subject}_t2w_debias_avgT_to_${subject}_mpr1T_debias_t4 ${subject}_t
 niftigz_4dfp -n ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT
 bet2 ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT_bet
 niftigz_4dfp -4 ${subject}_t2w_debias_avgT_bet ${subject}_t2w_debias_avgT_bet
-
 if (! $keep_going) exit
-
 
 ATLAS_LINKS:
 ####################
@@ -474,9 +476,7 @@ set maskdir = $subdir/subcortical_mask
 set t4file = $subdir/T1/${subject}_mpr1T_to_TRIO_Y_NDC_t4
 create_subcortical_mask_SIC.csh $subject $subdir/fs5.3_native_default/ $t4file $maskdir
 create_ribbon.csh $subject
-
 if (! $keep_going) exit
-
 
 FUNC_PARAMS:
 ################
@@ -543,7 +543,6 @@ foreach k ($sesnums)
 end
 if (! $keep_going) exit
 
-
 GENERIC_PREPROCESS:
 ###############################################
 # Generic preprocessing for dcm_to_4dfp etc...
@@ -553,9 +552,7 @@ foreach k ( $sesnums )
 	cross_bold_dn_180706.csh ${k}.params $instruction_file
 	popd
 end
-
 if (! $keep_going) exit
-
 
 RUN_DVAR_4dfp:
 #######################################
@@ -576,9 +573,7 @@ foreach k ( $sesnums )
 	end
 	popd
 end
-
 if (! $keep_going) exit
-
 
 FCPROCESS:
 ####################
@@ -592,7 +587,6 @@ foreach patid ($sesnums)
 	popd
 end
 if (! $keep_going) exit
-
 
 SURF_PROJECTION:
 ###########################################
