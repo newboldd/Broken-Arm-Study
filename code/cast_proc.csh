@@ -9,7 +9,7 @@ set CNDA_project_name = # e.g., NP1083
 # Output Paths
 set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/
 set origdir = $basedir/orig_data/$subject/ # download destination for CNDA files
-set FSfdir = $basedir/freesurfer7.2/ # FS outputs
+set FSdir = $basedir/freesurfer7.2/ # FS outputs
 set procdir = $basedir/proc/
 # basedir:
 # ├── data_orig
@@ -122,14 +122,11 @@ DCM_SORT:
 # Sort dcm files
 ################
 set k = 1
-
 while ( $k <= $#sesnums)
-
 	set ses_orig = $sesnums_orig[$k]
 	set ses = $sesnums[$k]
 	mkdir ${funcdir}/$ses
 	pushd ${funcdir}/$ses
-	# pseudo_dcm_sort.csh -i -s ${origdir}/${ses_orig}/scans/
 	pseudo_dcm_sort.csh ${origdir}/${ses_orig}/scans
 	mv scans.studies.txt ${ses}.studies.txt
 	popd
@@ -141,12 +138,10 @@ STRUCT_PARAMS:
 ################
 # create struct params
 ################
+pushd $funcdir
 
 set T1_label =
 set T2_label =
-
-pushd $funcdir
-
 foreach k ( $sesnums )
 	pushd $k
 	set T1dcm = `cat $k.studies.txt | grep 'T1MPRAGECor' | grep ' 208' | awk -F " " '{print $1}'`
@@ -155,35 +150,24 @@ foreach k ( $sesnums )
 	set t = 1
 	while ( $t <= $T1num )
 		if ( $T1dcm[$t] > 0 ) then
-			set T1_label = `echo ${T1_label} $funcdir/$k/study$T1dcm[$t]`
+			set T1_label = `echo ${T1_label} $k/study$T1dcm[$t]`
 		endif
 		@ t++
 	end
-
 	set T2dcm = `cat $k.studies.txt | grep 'T2w' | grep ' 208' | awk -F " " '{print $1}'`
 	set T2dcm = `echo $T2dcm | tr -d '\n'`
 	set T2num = $#T2dcm
 	set t = 1
 	while ( $t <= $T2num )
 		if ( $T2dcm[$t] > 0 ) then
-			set T2_label = `echo ${T2_label} $funcdir/$k/study$T2dcm[$t]`
+			set T2_label = `echo ${T2_label} $k/study$T2dcm[$t]`
 		endif
 		@ t++
 	end
 	popd
 end
-
-# static struct params
-echo "set patid = $subject" > $structparams_file
-echo "set structid = ${subject}_struct" >> $structparams_file
-echo "set studydir = ${basedir}" >> $structparams_file
-echo "set FSdir = ${FSdir}" >> $structparams_file
-echo "set PostFSdir = ${FSdir}/FREESURFER_fs_LR" >> $structparams_file
-
-# dynamic struct params
-echo "set mprdirs    = ( ${T1_label} )" >> $structparams_file
+echo "set T1    = ( ${T1_label} )" > $structparams_file
 echo "set t2wdirs    = ( ${T2_label} )" >> $structparams_file
-
 cat $structparams_file
 if (! $keep_going) exit
 
