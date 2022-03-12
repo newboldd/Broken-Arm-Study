@@ -1,0 +1,23 @@
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses1 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses2 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses3 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses4 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses5 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses6 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses7 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses8 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses9 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals/ses10 /data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/Functionals /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+set T1    = ( ses1/study7 ses2/study7 ses4/study7 ses5/study7 ses7/study12 ses9/study7 )
+set t2wdirs    = ( ses10/study7 ses10/study8 )

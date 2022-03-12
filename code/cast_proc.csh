@@ -74,12 +74,12 @@ set keep_going = 0
 #########################
 # Data download + sorting
 	#goto DOWNLOAD
-	goto DCM_SORT
+	#goto DCM_SORT
 
 #########################
 # Structural processing
 	#goto STRUCT_PARAMS
-	#goto STRUCT_DCM
+	goto STRUCT_DCM
 	#goto T1_PROC
 	#goto T2_PROC
 	#goto ATLAS_LINKS
@@ -198,22 +198,23 @@ set structtype = ( T1 T2 )
 pushd ${subdir}
 source $structparams_file
 foreach struct ( $structtype )
-	mkdir $struct
+	if (! -e $struct) mkdir $struct
 end
 
 set k = 1
 pushd $structtype[1]
 while ( $k <= $#T1 )
 	set structscan = $T1[$k]
-	dcm_to_4dfp -b ${subject}_mpr$k ../$structscan
+	dcm_to_4dfp -b ${subject}_mpr$k $funcdir/$structscan
 	@ k++
 end
 popd
+
 set k = 1
 pushd $structtype[2]
 while ( $k <= $#T2 )
 	set structscan = $T2[$k]
-	dcm_to_4dfp -b ${subject}_t2w$k ../$structscan
+	dcm_to_4dfp -b ${subject}_t2w$k $funcdir/$structscan
 	@ k++
 end
 popd
