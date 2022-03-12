@@ -7,7 +7,7 @@ set subject = BAS001
 set CNDA_project_name = NP1141 # e.g., NP1083
 
 # Output Paths
-set basedir = .. # TODO would love to make this path relative
+set basedir = /data/perlman/moochie/analysis/Broken-Arm-Study/ # TODO would love to make this path relative
 # so script can be run from anywhere
 set origdir = $basedir/orig_data/$subject/ # download destination for CNDA files
 set FSdir = $basedir/freesurfer7.2/ # FS outputs
@@ -145,7 +145,7 @@ while ( $k <= $#sesnums)
 	set ses = $sesnums[$k]
 	mkdir ${funcdir}/$ses
 	pushd ${funcdir}/$ses
-	pseudo_dcm_sort.csh ${origdir}/${ses_orig}/scans
+	pseudo_dcm_sort.csh ${origdir}/${ses_orig}/scans/
 	mv scans.studies.txt ${ses}.studies.txt
 	popd
 	@ k++
