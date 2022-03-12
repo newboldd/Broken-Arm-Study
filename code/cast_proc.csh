@@ -42,7 +42,7 @@ set sesnums = `cat $seslist`
 
 # Environment
 set procSRC = $basedir/src/processing_scripts/
-set AVIDIR = `readlink -f ~/avi_release_dir`
+set AVIDIR = /data/nil-bluearc/raichle/lin64-tools/
 set FSswdir = /usr/local/pkg/freesurfer/bin/
 set FSLdir = /usr/local/pkg/fsl6.0.3/bin/
 set path = ($path $procSRC)
@@ -50,7 +50,7 @@ set path = ($path $AVIDIR)
 set path = ($path $FSswdir)
 set path = ($path $FSswdir)
 
-setenv REFDIR = `readlink -f ~/refdir`
+setenv REFDIR = /data/petsun43/data1/atlas/
 setenv FREESURFER_HOME = /usr/local/pkg/freesurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.csh
 
@@ -73,7 +73,7 @@ set keep_going = 1
 #########################
 # Data download + sorting
 	#goto DOWNLOAD
-	#goto DCM_SORT
+	goto DCM_SORT
 
 #########################
 # Structural processing
@@ -122,6 +122,10 @@ while ( $k <= $#sesnums_orig)
 end
 popd
 if (! $keep_going) exit
+
+# TODO
+# call downloadCNDASession2.sh with username from above
+# then run python cleanup conversion script
 
 DCM_SORT:
 ################
@@ -455,7 +459,10 @@ SUBCORT_MASK:
 ##################################
 # CREATE SUBCORTICAL MASK & RIBBON
 ##################################
+
+# TODO
 # May need to change script here to accomodate moving surface atlas directories into surfdir
+# may make more sense for maskdir to be in surfaces (FS postprocessing -> cifti)
 set maskdir = $subdir/subcortical_mask
 set t4file = $subdir/T1/${subject}_mpr1T_to_TRIO_Y_NDC_t4
 create_subcortical_mask_SIC.csh $subject $subdir/fs5.3_native_default/ $t4file $maskdir
@@ -521,7 +528,7 @@ foreach k ($sesnums)
 	echo "set seqstr	= " $seqstr >> $k.params
 
 	# FC params
-	echo "set boldruns = (1)" > $k.fcparams
+	echo "set boldruns = (movie)" > $k.fcparams
 
 	popd
 end
@@ -531,6 +538,10 @@ GENERIC_PREPROCESS:
 ###############################################
 # Generic preprocessing for dcm_to_4dfp etc...
 ###############################################
+
+# TODO
+# see if we can include params from .json (dcm2niix output) 
+# to write params into instruction_file to be read by cross_bold
 foreach k ( $sesnums )
 	pushd $funcdir/$k
 	cross_bold_dn_180706.csh ${k}.params $instruction_file
