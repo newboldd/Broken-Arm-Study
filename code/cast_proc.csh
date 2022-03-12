@@ -79,8 +79,8 @@ set keep_going = 0
 #########################
 # Structural processing
 	#goto STRUCT_PARAMS
-	goto STRUCT_DCM
-	#goto T1_PROC
+	#goto STRUCT_DCM
+	goto T1_PROC
 	#goto T2_PROC
 	#goto ATLAS_LINKS
 	#goto FREESURFER
