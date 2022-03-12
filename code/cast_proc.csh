@@ -185,7 +185,7 @@ foreach k ( $sesnums )
 	popd
 end
 echo "set T1    = ( ${T1_label} )" > $structparams_file
-echo "set t2wdirs    = ( ${T2_label} )" >> $structparams_file
+echo "set T2    = ( ${T2_label} )" >> $structparams_file
 cat $structparams_file
 if (! $keep_going) exit
 
@@ -622,4 +622,3 @@ foreach patid ($sesnums)
 	popd
 	popd
 end
-exit
