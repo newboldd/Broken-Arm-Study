@@ -7,7 +7,8 @@ set subject = BAS001
 set CNDA_project_name = NP1141 # e.g., NP1083
 
 # Output Paths
-set basedir = $0/../
+set basedir = .. # TODO would love to make this path relative
+# so script can be run from anywhere
 set origdir = $basedir/orig_data/$subject/ # download destination for CNDA files
 set FSdir = $basedir/freesurfer7.2/ # FS outputs
 set procdir = $basedir/proc/ # 
@@ -50,8 +51,8 @@ set path = ($path $AVIDIR)
 set path = ($path $FSswdir)
 set path = ($path $FSswdir)
 
-setenv REFDIR = /data/petsun43/data1/atlas/
-setenv FREESURFER_HOME = /usr/local/pkg/freesurfer
+set REFDIR = /data/petsun43/data1/atlas/
+set FREESURFER_HOME = /usr/local/pkg/freesurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.csh
 
 # Additional dependencies
@@ -68,7 +69,7 @@ set global_scripts = /data/heisenberg/data1/mario/FSAVG2FSLR_SCRIPTS/global/scri
 # CONTENTS
 #######################################################
 # Uncomment a goto statement to skip to that step
-set keep_going = 1
+set keep_going = 0
 
 #########################
 # Data download + sorting
@@ -131,6 +132,13 @@ DCM_SORT:
 ################
 # Sort dcm files
 ################
+
+# create initial folders if necessary
+if (! -e $procdir) mkdir $procdir
+if (! -e $subdir) mkdir $subdir
+if (! -e $surfdir) mkdir $surfdir
+if (! -e $funcdir) mkdir $funcdir
+
 set k = 1
 while ( $k <= $#sesnums)
 	set ses_orig = $sesnums_orig[$k]
