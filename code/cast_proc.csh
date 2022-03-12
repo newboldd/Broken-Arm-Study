@@ -145,7 +145,7 @@ while ( $k <= $#sesnums)
 	set ses = $sesnums[$k]
 	mkdir ${funcdir}/$ses
 	pushd ${funcdir}/$ses
-	pseudo_dcm_sort.csh ${origdir}/${ses_orig}/scans/
+	pseudo_dcm_sort.csh ${origdir}/${ses_orig}/scans
 	mv scans.studies.txt ${ses}.studies.txt
 	popd
 	@ k++
