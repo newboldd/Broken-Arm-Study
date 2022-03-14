@@ -234,6 +234,7 @@ set k = 1
 while ( $k <= $T1num )
 	S2T_4dfp ${subject}_mpr${k} ${subject}_mpr${k}T
 	niftigz_4dfp -n ${subject}_mpr${k}T ${subject}_mpr${k}T
+	nifti_4dfp -n ${subject}_mpr${k}T ${subject}_mpr${k}T
 	@ k++
 end
 
@@ -243,6 +244,7 @@ while ( $k <= $T1num )
 	echo apply_debias.csh ${subject}_mpr${k}T
 	apply_debias.csh ${subject}_mpr${k}T
 	niftigz_4dfp -4 ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias -N
+	nifti_4dfp -n ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias
 	@ k++
 end
 
@@ -250,6 +252,7 @@ end
 echo bet2 ${subject}_mpr1T_debias ${subject}_mpr1T_debias_bet
 bet2 ${subject}_mpr1T_debias.nii.gz ${subject}_mpr1T_debias_bet
 niftigz_4dfp -4 ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet -N
+nifti_4dfp -n ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet
 
 # Register first T1 to atlas
 set modes	= (0 0 0 0 0)
@@ -278,6 +281,7 @@ while ( $k <= $T1num )
 end
 avgmpr_4dfp ${T1scans} ${subject}_mpr_debias_avgT useold -T/data/petsun43/data1/atlas/TRIO_Y_NDC
 t4imgs_4dfp -s ${subject}_mpr_debias_avgT.lst ${subject}_mpr_debias_avgT -O${subject}_mpr1T_debias
+nifti_4dfp -n ${subject}_mpr_debias_avgT ${subject}_mpr_debias_avgT
 
 if (! $keep_going) exit
 
@@ -298,6 +302,7 @@ end
 while ( $k <= $T2num )
 	S2T_4dfp ${subject}_t2w${k} ${subject}_t2w${k}T
 	niftigz_4dfp -n ${subject}_t2w${k}T ${subject}_t2w${k}T
+	nifti_4dfp -n ${subject}_t2w${k}T ${subject}_t2w${k}T
 	@ k++
 end
 
@@ -307,6 +312,7 @@ while ( $k <= $T2num )
 	echo apply_debias.csh ${subject}_t2w${k}T
 	apply_debias.csh ${subject}_t2w${k}T
 	niftigz_4dfp -4 ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias -N
+	nifti_4dfp -n ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias
 	@ k++
 end
 
@@ -320,6 +326,8 @@ while ( $k <= $T2num )
 end
 avgmpr_4dfp ${T2scans} ${subject}_t2w_debias_avgT useold -T/data/petsun43/data1/atlas/TRIO_Y_NDC
 t4imgs_4dfp -s ${subject}_t2w_debias_avgT.lst ${subject}_t2w_debias_avgT -O${subject}_t2w1T_debias
+nifti_4dfp -n ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT
+
 cp ${subject}_t2w1T_debias_to_TRIO_Y_NDC_t4 ${subject}_t2w_debias_avgT_to_TRIO_Y_NDC_t4
 cp ${subject}_t2w1T_debias_to_${subject}_mpr1T_debias_t4 ${subject}_t2w_debias_avgT_to_${subject}_mpr1T_debias_t4
 t4img_4dfp ${subject}_t2w_debias_avgT_to_${subject}_mpr1T_debias_t4 ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT_on_${subject}_mpr1T_debias -O${subject}_mpr1T_debias.4dfp.ifh
@@ -328,6 +336,8 @@ t4img_4dfp ${subject}_t2w_debias_avgT_to_${subject}_mpr1T_debias_t4 ${subject}_t
 niftigz_4dfp -n ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT
 bet2 ${subject}_t2w_debias_avgT ${subject}_t2w_debias_avgT_bet
 niftigz_4dfp -4 ${subject}_t2w_debias_avgT_bet ${subject}_t2w_debias_avgT_bet
+nifti_4dfp -n ${subject}_t2w_debias_avgT_bet ${subject}_t2w_debias_avgT_bet
+
 if (! $keep_going) exit
 
 ATLAS_LINKS:
@@ -360,7 +370,9 @@ FREESURFER:
 #################
 # Run freesurfer
 #################
-niftigz_4dfp -n $subdir/T1/${subject}_mpr_debias_avgT $subdir/T1/${subject}_mpr_debias_avgT
+
+# shouldn't this, below, already exist? TODO
+# niftigz_4dfp -n $subdir/T1/${subject}_mpr_debias_avgT $subdir/T1/${subject}_mpr_debias_avgT
 mkdir ${FSdir}
 recon-all -all -sd ${FSdir} -s ${subject} -i ${basedir}/${subject}/T1/${subject}_mpr_debias_avgT.nii.gz
 
