@@ -206,6 +206,7 @@ pushd $structtype[1]
 while ( $k <= $#T1 )
 	set structscan = $T1[$k]
 	dcm_to_4dfp -b ${subject}_mpr$k $funcdir/$structscan
+	# nifti_4dfp -n ${subject}_mpr${k} ${subject}_mpr${k}
 	@ k++
 end
 popd
@@ -215,6 +216,7 @@ pushd $structtype[2]
 while ( $k <= $#T2 )
 	set structscan = $T2[$k]
 	dcm_to_4dfp -b ${subject}_t2w$k $funcdir/$structscan
+	# nifti_4dfp -n ${subject}_t2w${k} ${subject}_t2w${k}
 	@ k++
 end
 popd
@@ -234,7 +236,7 @@ set k = 1
 while ( $k <= $T1num )
 	S2T_4dfp ${subject}_mpr${k} ${subject}_mpr${k}T
 	niftigz_4dfp -n ${subject}_mpr${k}T ${subject}_mpr${k}T
-	nifti_4dfp -n ${subject}_mpr${k}T ${subject}_mpr${k}T
+	# nifti_4dfp -n ${subject}_mpr${k}T ${subject}_mpr${k}T
 	@ k++
 end
 
@@ -244,7 +246,7 @@ while ( $k <= $T1num )
 	echo apply_debias.csh ${subject}_mpr${k}T
 	apply_debias.csh ${subject}_mpr${k}T
 	niftigz_4dfp -4 ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias -N
-	nifti_4dfp -n ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias
+	# nifti_4dfp -n ${subject}_mpr${k}T_debias ${subject}_mpr${k}T_debias
 	@ k++
 end
 
@@ -252,7 +254,7 @@ end
 echo bet2 ${subject}_mpr1T_debias ${subject}_mpr1T_debias_bet
 bet2 ${subject}_mpr1T_debias.nii.gz ${subject}_mpr1T_debias_bet
 niftigz_4dfp -4 ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet -N
-nifti_4dfp -n ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet
+# nifti_4dfp -n ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet
 
 # Register first T1 to atlas
 set modes	= (0 0 0 0 0)
@@ -302,7 +304,7 @@ end
 while ( $k <= $T2num )
 	S2T_4dfp ${subject}_t2w${k} ${subject}_t2w${k}T
 	niftigz_4dfp -n ${subject}_t2w${k}T ${subject}_t2w${k}T
-	nifti_4dfp -n ${subject}_t2w${k}T ${subject}_t2w${k}T
+	# nifti_4dfp -n ${subject}_t2w${k}T ${subject}_t2w${k}T
 	@ k++
 end
 
@@ -312,7 +314,7 @@ while ( $k <= $T2num )
 	echo apply_debias.csh ${subject}_t2w${k}T
 	apply_debias.csh ${subject}_t2w${k}T
 	niftigz_4dfp -4 ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias -N
-	nifti_4dfp -n ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias
+	# nifti_4dfp -n ${subject}_t2w${k}T_debias ${subject}_t2w${k}T_debias
 	@ k++
 end
 

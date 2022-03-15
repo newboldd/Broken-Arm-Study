@@ -1,0 +1,30 @@
+/data/perlman/moochie/analysis/Broken-Arm-Study/proc/BAS001/T1 /data/perlman/moochie/analysis/Broken-Arm-Study/code 
+$Id: ifh2hdr.c,v 1.3 2007/05/05 10:45:03 nicks Exp $
+Mon Mar 14 23:10:24 2022
+Writing: BAS001_mpr1T.4dfp.hdr
+$Id: S2T_4dfp.c,v 1.6 2007/08/31 05:03:24 avi Exp $
+BAS001_mpr1
+       240       256       208         1
+  0.832031  0.832031  1.000000
+orientation C byte_order littleendian
+Reading: BAS001_mpr1.4dfp.img
+Writing: BAS001_mpr1T.4dfp.img
+Writing: BAS001_mpr1T.4dfp.ifh
+ifh2hdr BAS001_mpr1T
+including: BAS001_mpr1.4dfp.img.rec in BAS001_mpr1T.4dfp.img.rec
+skip=0
+$Id: nifti_4dfp.c,v 1.9 2011/09/13 03:40:37 avi Exp $
+input:	104.000000	1.000000
+input:	-100.675751	-0.832031
+input:	-107.332001	-0.832031
+common:	-1.000000	-0.000000	0.000000	104.000000
+common:	-0.000000	-0.832031	0.000000	99.843720
+common:	-0.000000	-0.000000	0.832031	-105.667938
+out:	1.000000	0.000000	0.000000	-103.000000
+out:	0.000000	0.832031	0.000000	-99.011692
+out:	0.000000	0.000000	0.832031	-105.667938
+flip	in	out
+yes	208	208
+yes	240	240
+no	256	256
+no	1	1
