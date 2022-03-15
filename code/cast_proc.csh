@@ -232,6 +232,7 @@ pushd ${subdir}/T1/
 set T1num = $#T1
 
 # Transform from Sagittal to Transverse
+echo "Transform from Sagittal to Transverse"
 set k = 1
 while ( $k <= $T1num )
 	S2T_4dfp ${subject}_mpr${k} ${subject}_mpr${k}T
@@ -241,6 +242,7 @@ while ( $k <= $T1num )
 end
 
 # Debias and convert back to 4dfp
+echo "Debias and convert back to 4dfp"
 set k = 1
 while ( $k <= $T1num )
 	echo apply_debias.csh ${subject}_mpr${k}T
@@ -251,6 +253,7 @@ while ( $k <= $T1num )
 end
 
 # Mask first T1 for registration
+echo "Mask first T1 for registration"
 echo bet2 ${subject}_mpr1T_debias ${subject}_mpr1T_debias_bet
 bet2 ${subject}_mpr1T_debias.nii.gz ${subject}_mpr1T_debias_bet
 niftigz_4dfp -4 ${subject}_mpr1T_debias_bet ${subject}_mpr1T_debias_bet -N
